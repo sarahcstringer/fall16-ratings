@@ -2,11 +2,14 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import connect_to_db, db
+from flask import (Flask, render_template, redirect, request, flash,
+                   session, jsonify)
 
+from model import connect_to_db, db, User, Rating, Movie, Category, MovieCategory
+
+from sqlalchemy.sql import func
 
 app = Flask(__name__)
 
@@ -17,14 +20,50 @@ app.secret_key = "ABC"
 # silently. This is horrible. Fix this so that, instead, it raises an
 # error.
 app.jinja_env.undefined = StrictUndefined
+app.jinja_env.auto_reload = True
 
 
 @app.route('/')
 def index():
     """Homepage."""
-    a = jsonify([1,3])
-    return a
+    
 
+    return render_template('homepage.html')
+
+@app.route('/users')
+def user_list():
+    """Show list of users."""
+
+    users = User.query.all()
+
+    return render_template('user_list.html', users=users)
+
+@app.route('/users/<id>')
+def show_user_details(id):
+
+    user = User.query.get(id)
+
+    return render_template('user_details.html', user=user)
+
+@app.route('/movie/<id>')
+def show_movie_details(id):
+
+    movie = Movie.query.get(id)
+    avg_rating = db.session.query(func.avg(Rating.score)).filter(
+                                                Rating.movie_id==id).one()
+    # print avg_rating
+
+    return render_template('movie_details.html', movie=movie, 
+                            avg_rating=avg_rating)
+
+
+@app.route('/movies')
+def movie_list():
+    """Show list of movies"""
+
+    movies = Movie.query.order_by(Movie.title).all()
+    
+    return render_template('movie_list.html', movies=movies)
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
@@ -38,4 +77,4 @@ if __name__ == "__main__":
 
 
     
-    app.run(port=5003)
+    app.run()

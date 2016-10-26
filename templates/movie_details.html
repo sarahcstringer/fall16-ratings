@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>{{ movie.title }}</h1>
+<h3>Categories</h3>
+<ul>
+    {% for category in movie.categories %}
+    <li>{{ category.category }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Ratings</h3>
+
+<h4>Average rating: {{ '%0.2f' | format(avg_rating[0]) }}</h4>
+
+<ul>
+{% for rating in movie.ratings %}
+<li>{{rating.user_id}}: {{rating.score}}</li>
+{% endfor %}
+</ul>
+{% endblock %}
