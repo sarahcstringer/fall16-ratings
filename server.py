@@ -26,8 +26,8 @@ app.jinja_env.auto_reload = True
 @app.route('/')
 def index():
     """Homepage."""
-    
-
+    print dir(request.headers)
+    print request.headers
     return render_template('homepage.html')
 
 @app.route('/users')
@@ -65,6 +65,25 @@ def movie_list():
     
     return render_template('movie_list.html', movies=movies)
 
+
+@app.route('/signup')
+def add_user():
+    """Add user to database"""
+
+    email = request.form.get('email')
+
+    try:
+        user = User.query.filter_by(email=email).one()
+        return jsonify({'result': 'bad_username'})
+
+    except:
+        password = request.form.get('password')
+        zipcode = request.form.get('zip')
+        dob = request.form.get('dob')
+        # age = 
+        user = User(email=email, password=password, zipcode=zipcode,
+                    )
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
@@ -77,4 +96,4 @@ if __name__ == "__main__":
 
 
     
-    app.run()
+    app.run(host='0.0.0.0')
